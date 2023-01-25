@@ -59,7 +59,14 @@ btnLoadMore.addEventListener('click', () => {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
-    } else if (pageNumber === Math.ceil(foundData.totalHits / per_page)) {
+    } else if (pageNumber < Math.ceil(foundData.totalHits / per_page)) {
+      renderImageList(foundData.hits);
+      btnLoadMore.style.display = 'flex';
+      Notiflix.Notify.success(`We found ${foundData.hits.length} images.`);
+      gallerySimpleLightbox.refresh();
+    }
+    
+    else if (pageNumber === Math.ceil(foundData.totalHits / per_page)) {
       renderImageList(foundData.hits);
       btnLoadMore.style.display = 'none';
       Notiflix.Notify.success(`We found ${foundData.hits.length} images.`);
