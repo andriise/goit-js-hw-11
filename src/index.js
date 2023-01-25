@@ -11,40 +11,58 @@ const btnLoadMore = document.querySelector('.load-more');
 let gallerySimpleLightbox = new SimpleLightbox('.gallery a');
 btnLoadMore.style.display = 'none';
 let pageNumber = 1;
+let per_page = 40;
+let totalHits = 0;
 
 btnSearch.addEventListener('click', onSearchBtn);
 
 function onSearchBtn(evt) {
+  btnLoadMore.style.display = 'none';
   evt.preventDefault();
   cleanGallery();
   const trimmedValue = input.value.trim();
-  if (trimmedValue !== '') {
-    fetchImages(trimmedValue, pageNumber).then(foundData => {
-      if (foundData.hits.length === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      } else {
-        renderImageList(foundData.hits);
-        Notiflix.Notify.success(
-          `Hooray! We found ${foundData.totalHits} images.`
-        );
-        btnLoadMore.style.display = 'block';
-        gallerySimpleLightbox.refresh();
-      }
-    });
+  if (trimmedValue === '') {
+    return;
   }
+  fetchImages(trimmedValue, pageNumber).then(foundData => {
+    console.log(foundData);
+    if (foundData.hits.length === 0) {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    } else {
+      if (pageNumber < Math.ceil(foundData.totalHits / per_page)) {
+        btnLoadMore.style.display = 'block';
+      }
+      renderImageList(foundData.hits);
+      Notiflix.Notify.success(
+        `Hooray! We found ${foundData.totalHits} images.`
+      );
+      gallerySimpleLightbox.refresh();
+    }
+    // }  else {
+    //   renderImageList(foundData.hits);
+    //   Notiflix.Notify.success(
+    //     `Hooray! We found ${foundData.totalHits} images.`
+    //   );
+    //   btnLoadMore.style.display = 'block';
+    //   gallerySimpleLightbox.refresh();
+    // }
+  });
 }
 btnLoadMore.addEventListener('click', () => {
   pageNumber += 1;
   const trimmedValue = input.value.trim();
   btnLoadMore.style.display = 'none';
   fetchImages(trimmedValue, pageNumber).then(foundData => {
-    if (foundData.hits.length === 0) {
+    if (foundData.totalHits === 0) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     } else {
+      if (pageNumber < Math.ceil(foundData.totalHits / per_page)) {
+        btnLoadMore.style.display = 'block';
+      }
       renderImageList(foundData.hits);
       Notiflix.Notify.success(
         `Hooray! We found ${foundData.totalHits} images.`
@@ -57,7 +75,7 @@ btnLoadMore.addEventListener('click', () => {
 function renderImageList(images) {
   const markup = images
     .map(
-      (image) => `<div class="photo-card">
+      image => `<div class="photo-card">
        <a href="${image.largeImageURL}"><img class="photo" src="${image.webformatURL}" alt="${image.tags}" title="${image.tags}" loading="lazy"/></a>
         <div class="info">
            <p class="info-item">
