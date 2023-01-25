@@ -12,7 +12,7 @@ let gallerySimpleLightbox = new SimpleLightbox('.gallery a');
 btnLoadMore.style.display = 'none';
 let pageNumber = 1;
 let per_page = 40;
-let totalHits = 0;
+
 
 btnSearch.addEventListener('click', onSearchBtn);
 
@@ -59,15 +59,10 @@ btnLoadMore.addEventListener('click', () => {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
-    } else {
-      if (pageNumber < Math.ceil(foundData.totalHits / per_page)) {
-        btnLoadMore.style.display = 'block';
-      }
+    } else if (pageNumber === Math.ceil(foundData.totalHits / per_page)) {
       renderImageList(foundData.hits);
-      Notiflix.Notify.success(
-        `Hooray! We found ${foundData.totalHits} images.`
-      );
-      btnLoadMore.style.display = 'block';
+      btnLoadMore.style.display = 'none';
+      Notiflix.Notify.success(`We found ${foundData.hits.length} images.`);
     }
   });
 });
